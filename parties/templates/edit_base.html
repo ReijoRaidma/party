@@ -1,0 +1,26 @@
+<!doctype html>
+{% load static from staticfiles %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/foundation.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  {% block css %}{% endblock %}
+  <script src="{% static 'js/vendor/modernizr.js' %}"></script>
+  <meta class="foundation-mq">
+</head>
+<body>
+<nav>
+  <a href="{% url 'parties:party_list' %}">Home</a>
+  <a href="{% url 'parties:add_party' %}">Add</a>
+</nav>
+{% block content %}{% endblock %}
+<script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'js/vendor/what-input.min.js' %}"></script>
+<script src="{% static 'js/foundation.min.js' %}"></script>
+{% block javascript %}{% endblock %}
+<script>$(document).foundation();</script>
+</body>
+</html>

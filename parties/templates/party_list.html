@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Party list{% endblock %}
+
+{% block content %}
+  <h1>Parties list</h1>
+  {% if parties %}
+    <ul>
+      {% for party in parties %}
+        <li><a href="{% url 'parties:detail' pk=party.pk %}"> {{ party.name }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
+

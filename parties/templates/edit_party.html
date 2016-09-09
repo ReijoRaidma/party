@@ -1,0 +1,46 @@
+{% extends "edit_base.html" %}
+{% block title %}Edit Party{% endblock %}
+
+{% block content %}
+  <form method="POST" action="">{% csrf_token %}
+    {{ party_form.as_p }}
+
+    {{ formset.management_form }}
+
+    <table role="grid"  style="width: 100%">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center">Name</th>
+          <th scope="col" class="text-center">Birth Date</th>
+        </tr>
+      </thead>
+      <tbody class="order">
+          {% for guest_form in formset %}
+              <tr class="guest-form {% if guest_form.instance.pk %} item {% else %} new {% endif %}">
+                  <td>{{ guest_form.id }}{{guest_form.name}}{{ guest_form.name.errors }}</td>
+                  <td>{{ guest_form.birth_date }}{{ guest_form.birth_date.errors }}</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  <input type="submit" class="button" value="Save">
+  </form>
+
+
+{% block css %}
+{{ party_form.media.css }}
+{% endblock %}
+
+  {% block javascript %}
+    {% load static from staticfiles %}
+    {{ form.media.js }}
+    <script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
+    <script>
+      $('.guest-form').formset({
+        addText: 'add answer',
+        deleteText: 'remove'
+      });
+    </script>
+  {% endblock %}
+
+{% endblock %}

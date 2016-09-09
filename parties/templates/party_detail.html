@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Party Details{% endblock %}
+
+{% block content %}
+  <h2>{{ party.name }}</h2>
+  <ul>
+    {% for guest in party.guests.all %}
+      <li>{{ guest.name }}</li>
+    {% endfor %}
+  </ul>
+  <button type="button" class="btn btn-default"><a href="{% url 'parties:edit_party' pk=party.pk %}">Edit</a></button>
+{% endblock %}
+
+
+
+
+
+

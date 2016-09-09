@@ -1,0 +1,165 @@
+{% extends "edit_base.html" %}
+{% block title %}Add Party{% endblock %}
+
+{% block content %}
+  <form method="POST" action="">{% csrf_token %}
+    {{ party_form.as_p }}
+
+
+    {{ guest_formset.management_form }}
+
+    <table role="grid"  style="width: 100%">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center">Name</th>
+          <th scope="col" class="text-center">Birth Date</th>
+        </tr>
+      </thead>
+      <tbody class="order">
+          {% for guest_form in guest_formset %}
+              <tr class="guest-form {% if guest_form.instance.pk %} item {% else %} new {% endif %}">
+                  <td>{{ guest_form.id }}{{guest_form.name}}{{ guest_form.name.errors }}</td>
+                  <td>{{ guest_form.birth_date }}{{ guest_form.birth_date.errors }}</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  <input type="submit" class="button" value="Save">
+  </form>
+
+
+{% block css %}
+{{ party_form.media.css }}
+{% endblock %}
+
+  {% block javascript %}
+    {% load static from staticfiles %}
+    {{ form.media.js }}
+    <script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
+    <script>
+      $('.guest-form').formset({
+        addText: 'add answer',
+        deleteText: 'remove'
+      });
+    </script>
+  {% endblock %}
+
+{% endblock %}
+
+
+
+{% comment %}
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add Party</title>
+  <link rel="stylesheet" href="{% static 'css/foundation.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  {% block css %}{% endblock %}
+  <script src="{% static 'js/vendor/modernizr.js' %}"></script>
+  <meta class="foundation-mq">
+</head>
+
+<body>
+<nav>
+  <a href="{% url 'parties:party_list' %}">Home</a>
+  <a href="{% url 'parties:add_party' %}">Add</a>
+</nav>
+
+  <form method="POST" action="">{% csrf_token %}
+    {{ party_form.as_p }}
+
+
+    {{ guest_formset.management_form }}
+
+    <table role="grid"  style="width: 100%">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center">Name</th>
+          <th scope="col" class="text-center">Birth Date</th>
+        </tr>
+      </thead>
+      <tbody class="order">
+          {% for guest_form in guest_formset %}
+              <tr class="guest-form {% if guest_form.instance.pk %} item {% else %} new {% endif %}">
+                  <td>{{ guest_form.id }}{{guest_form.name}}{{ guest_form.name.errors }}</td>
+                  <td>{{ guest_form.birth_date }}{{ guest_form.birth_date.errors }}</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  <input type="submit" class="button" value="Save">
+  </form>
+
+
+
+{{ party_form.media.css }}
+
+<script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'js/vendor/what-input.min.js' %}"></script>
+<script src="{% static 'js/foundation.min.js' %}"></script>
+
+
+{% load static from staticfiles %}
+{{ party_form.media.js }}
+
+<script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
+<script>
+    $('.guest-form').formset({
+        addText: 'add Guest',
+        deleteText: 'remove'
+    });
+</script>
+<script>$(document).foundation();</script>
+</body>
+</html>
+{% endcomment %}
+
+
+
+{#  <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>#}
+{#  <script src="{% static 'js/vendor/what-input.min.js' %}"></script>#}
+{#  <script src="{% static 'js/foundation.min.js' %}"></script>#}
+{#  {% block javascript %}{% endblock %}#}
+{#  <script>$(document).foundation();</script>#}
+{##}
+{#<form action="{% url 'parties:add_party' %}" method="post">{% csrf_token %}#}
+{#  <p>{{ form.name.label_tag }}#}
+{#    {{ form.name }}</p>#}
+{##}
+{#  {{ formset.management_form }}#}
+{#  {% for form in formset %}#}
+{#    <p>#}
+{#      {{ form.name.label_tag }}#}
+{#      {{ form.name }}#}
+{#      {{ form.name.errors }}#}
+{##}
+{#      {{ form.birth_date.label_tag }}#}
+{#      {{ form.birth_date }}#}
+{#      {{ form.birth_date.errors }}#}
+{#    </p>#}
+{#  {% endfor %}#}
+{#  <input type="submit" value="save" class="button"/>#}
+{#</form>#}
+{##}
+{#<!-- Include formset plugin - including jQuery dependency -->#}
+{#<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>#}
+{#<script src="{% static 'path_to/jquery.formset.js' %}"></script>#}
+{#<script>#}
+{#  $('.link-formset').formset({#}
+{#    addText: 'add link',#}
+{#    deleteText: 'remove'#}
+{#  });#}
+{#</script>#}
+{#</body>#}
+{##}
+{#</html>#}
+
+
+
+
