@@ -1,4 +1,5 @@
 {% extends "edit_base.html" %}
+{% load static from staticfiles %}
 {% block title %}Edit Party{% endblock %}
 
 {% block content %}
@@ -26,21 +27,20 @@
   <input type="submit" class="button" value="Save">
   </form>
 
+{% endblock %}
+
 
 {% block css %}
 {{ party_form.media.css }}
 {% endblock %}
 
-  {% block javascript %}
-    {% load static from staticfiles %}
-    {{ form.media.js }}
-    <script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
-    <script>
-      $('.guest-form').formset({
-        addText: 'add answer',
-        deleteText: 'remove'
-      });
-    </script>
-  {% endblock %}
-
+{% block javascript %}
+  {{ party_form.media.js }}
+  <script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
+  <script>
+    $('.guest-form').formset({
+      addText: 'add answer',
+      deleteText: 'remove'
+    });
+  </script>
 {% endblock %}

@@ -13,8 +13,8 @@
 </head>
 <body>
 <nav>
-  <a href="{% url 'parties:party_list' %}">Home</a>
-  <a href="{% url 'parties:add_party' %}">Add</a>
+  <a href="{% url 'party_list' %}">Home</a>
+  <a href="{% url 'add_party' %}">Add</a>
 </nav>
 {% block content %}{% endblock %}
 <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>

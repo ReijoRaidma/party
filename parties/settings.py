@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'parties',
 ]
 
@@ -51,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'party.urls'
+ROOT_URLCONF = 'parties.urls'
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -67,7 +66,7 @@ TEMPLATES = [{
     },
 }]
 
-WSGI_APPLICATION = 'party.wsgi.application'
+WSGI_APPLICATION = 'parties.wsgi.application'
 
 
 # Database
@@ -120,5 +119,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'assets'),
+    os.path.join(BASE_DIR, 'party/../assets'),
 )

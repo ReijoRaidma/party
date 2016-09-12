@@ -7,7 +7,7 @@
   {% if parties %}
     <ul>
       {% for party in parties %}
-        <li><a href="{% url 'parties:detail' pk=party.pk %}"> {{ party.name }}</a></li>
+        <li><a href="{% url 'detail' pk=party.pk %}"> {{ party.name }}</a></li>
       {% endfor %}
     </ul>
   {% endif %}

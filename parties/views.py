@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db import  transaction
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import inlineformset_factory
 
@@ -11,7 +11,7 @@ from parties.forms import PartyForm
 @transaction.atomic
 def add_party(request):
     party_form = PartyForm(request.POST or None)
-    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date'),extra=1)
+    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date'), extra=1)
     formset = GuestFormSet(request.POST or None)
 
     if request.method == 'POST':
@@ -22,7 +22,7 @@ def add_party(request):
                 guest.party = party
                 guest.save()
             messages.success(request, "Added guests")
-            return redirect('parties:party_list')
+            return redirect('party_list')
 
     return render(request, 'add_party.html', {
         'party_form': party_form,
@@ -35,7 +35,7 @@ def edit_party(request, pk):
     party = get_object_or_404(Party, pk=pk)
     party_form = PartyForm(request.POST or None, instance=party)
 
-    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date'),extra=0)
+    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date'), extra=1)
     formset = GuestFormSet(request.POST or None, instance=party)
 
     if request.method == 'POST':
@@ -43,9 +43,9 @@ def edit_party(request, pk):
             party_form.save()
             formset.save()
             messages.success(request, 'updated')
-            return redirect('parties:party_list')
+            return redirect('party_list')
 
-    return render( request, 'edit_party.html', {
+    return render(request, 'edit_party.html', {
         'party_form': party_form,
         'formset': formset,
         'party': party

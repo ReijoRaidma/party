@@ -8,7 +8,7 @@
       <li>{{ guest.name }}</li>
     {% endfor %}
   </ul>
-  <button type="button" class="btn btn-default"><a href="{% url 'parties:edit_party' pk=party.pk %}">Edit</a></button>
+  <button type="button" class="btn btn-default"><a href="{% url 'edit_party' pk=party.pk %}">Edit</a></button>
 {% endblock %}
 
 
