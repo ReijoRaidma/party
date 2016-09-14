@@ -8,7 +8,7 @@ from parties import views
 router = DefaultRouter()
 router.register(r'parties', views.PartyViewSet, base_name='party')
 router.register(r'guests', views.GuestViewSet, base_name='guest')
-
+router.register(r'users', views.UserViewSet, base_name='user')
 
 urlpatterns = [
     url(r'^api/', include(router.urls, namespace='api')),

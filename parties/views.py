@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.forms import inlineformset_factory
 from django.http import Http404
@@ -16,7 +17,7 @@ from rest_framework.reverse import reverse
 
 from parties.models import Guest, Party
 from parties.forms import PartyForm
-from parties.serializers import PartySerializer, GuestSerializer
+from parties.serializers import PartySerializer, GuestSerializer, UserSerializer
 
 
 class GuestViewSet(viewsets.ModelViewSet):
@@ -37,11 +38,19 @@ class GuestViewSet(viewsets.ModelViewSet):
 
 class PartyViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Party.objects.all()
+    queryset = Party.objects.none()
     serializer_class = PartySerializer
+
+    def get_queryset(self):
+        return Party.objects.readable(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 # class ApiPartyList(generics.ListCreateAPIView):
