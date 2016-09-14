@@ -13,9 +13,14 @@ router.register(r'guests', views.GuestViewSet, base_name='guest')
 urlpatterns = [
     url(r'^api/', include(router.urls, namespace='api')),
     url(r'^admin/', admin.site.urls),
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
     url(r'^$', views.party_list, name='party_list'),
     url(r'add_party', views.add_party, name='add_party'),
     url(r'(?P<pk>\d+)/edit_party', views.edit_party, name='edit_party'),
     url(r'(?P<pk>\d+)/', views.party_detail, name='detail'),
 
+
 ]
+
+
