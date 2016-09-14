@@ -12,6 +12,9 @@ class PartySerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+    owner = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )
 
     class Meta:
         model = Party
@@ -19,6 +22,7 @@ class PartySerializer(serializers.ModelSerializer):
             'id',
             'url',
             'name',
+            'owner',
             'guests',
         )
 
@@ -27,6 +31,7 @@ class GuestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='api:guest-detail'
     )
+
     class Meta:
         model = Guest
         fields = ('id','url','name', 'birth_date', 'party')

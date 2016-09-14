@@ -1,11 +1,15 @@
+from django.conf import settings
 from django.db import models
 import datetime
 
+
 class Party(models.Model):
     name = models.CharField(max_length=200)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='parties')
 
     def __str__(self):
         return self.name
+
 
 class Guest(models.Model):
     name = models.CharField(max_length=100)

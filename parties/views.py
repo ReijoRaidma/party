@@ -40,7 +40,8 @@ class PartyViewSet(viewsets.ModelViewSet):
     queryset = Party.objects.all()
     serializer_class = PartySerializer
 
-
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 # class ApiPartyList(generics.ListCreateAPIView):
