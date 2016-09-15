@@ -18,13 +18,15 @@ from rest_framework.reverse import reverse
 from parties.models import Guest, Party
 from parties.forms import PartyForm
 from parties.serializers import PartySerializer, GuestSerializer, UserSerializer
-
+from parties.permissions import IsOwnerOrReadOnly
 
 class GuestViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Guest.objects.all()
+    permission_classes = (IsOwnerOrReadOnly,)
+    queryset = Guest.objects.none()
     serializer_class = GuestSerializer
 
+    def get_queryset(self):
+        return Guest.objects.readable(user=self.request.user)
 #
 # class GuestList(generics.ListCreateAPIView):
 #     queryset = Guest.objects.all()
@@ -37,7 +39,7 @@ class GuestViewSet(viewsets.ModelViewSet):
 
 
 class PartyViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsOwnerOrReadOnly,)
     queryset = Party.objects.none()
     serializer_class = PartySerializer
 

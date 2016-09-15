@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 import datetime
 
-from parties.querysets import PartyQuerySet
+from parties.querysets import PartyQuerySet, GuestQuerySet
 
 
 class Party(models.Model):
@@ -20,6 +20,9 @@ class Guest(models.Model):
     name = models.CharField(max_length=100)
     birth_date = models.DateField(auto_now_add=False, default=datetime.datetime.now)
     party = models.ForeignKey(Party, related_name='guests')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+
+    objects = GuestQuerySet.as_manager()
 
     def __str__(self):
         return self.name

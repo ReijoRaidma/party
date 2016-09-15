@@ -25,6 +25,7 @@ class PartySerializer(serializers.ModelSerializer):
             'url',
             'name',
             'owner',
+            'is_public',
             'guests',
         )
 
@@ -33,19 +34,53 @@ class GuestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='api:guest-detail'
     )
-
-    class Meta:
-        model = Guest
-        fields = ('id', 'url', 'name', 'birth_date', 'party')
-
-
-class UserSerializer(serializers.ModelSerializer):
-    parties = serializers.HyperlinkedRelatedField(
+    party = serializers.HyperlinkedRelatedField(
         view_name='api:party-detail',
-        many=True,
-        read_only=True
+        queryset=Party.objects.none()
+    )
+    owner = serializers.HyperlinkedRelatedField(
+        view_name='api:user-detail',
+        read_only=True,
     )
 
     class Meta:
+        model = Guest
+        fields = (
+            'id',
+            'url',
+            'name',
+            'birth_date',
+            'party',
+            'owner',
+        )
+
+    def get_fields(self):
+        fields = super(GuestSerializer, self).get_fields()
+        fields['party'].queryset = Party.objects.readable(user=self.context.get('request').user)
+        return fields
+
+
+class UserSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='api:user-detail',
+    )
+
+
+    class Meta:
         model = User
-        fields = ('id', 'username', 'parties')
+        fields = (
+            'id',
+            'url',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+        )
+        read_only_fields = (
+            'id',
+            'url',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+        )
