@@ -40,7 +40,7 @@ class GuestSerializer(serializers.ModelSerializer):
     )
     owner = serializers.HyperlinkedRelatedField(
         view_name='api:user-detail',
-        read_only=True,
+        read_only=True
     )
 
     class Meta:

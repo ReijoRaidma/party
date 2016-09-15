@@ -18,7 +18,7 @@ class Party(models.Model):
 
 class Guest(models.Model):
     name = models.CharField(max_length=100)
-    birth_date = models.DateField(auto_now_add=False, default=datetime.datetime.now)
+    birth_date = models.DateField(auto_now_add=False)
     party = models.ForeignKey(Party, related_name='guests')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
 

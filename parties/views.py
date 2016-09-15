@@ -27,6 +27,9 @@ class GuestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Guest.objects.readable(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 #
 # class GuestList(generics.ListCreateAPIView):
 #     queryset = Guest.objects.all()
