@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.forms import inlineformset_factory
 from django.http import Http404
@@ -19,6 +19,7 @@ from parties.models import Guest, Party
 from parties.forms import PartyForm
 from parties.serializers import PartySerializer, GuestSerializer, UserSerializer
 from parties.permissions import ObjectOwnerPermission, UserPermission
+
 
 class GuestViewSet(viewsets.ModelViewSet):
     permission_classes = (ObjectOwnerPermission, IsAuthenticatedOrReadOnly)
@@ -55,7 +56,7 @@ class PartyViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (UserPermission, IsAuthenticatedOrReadOnly,)
-    queryset = User.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
 
 
