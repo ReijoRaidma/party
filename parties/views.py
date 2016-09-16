@@ -10,7 +10,7 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -18,10 +18,10 @@ from rest_framework.reverse import reverse
 from parties.models import Guest, Party
 from parties.forms import PartyForm
 from parties.serializers import PartySerializer, GuestSerializer, UserSerializer
-from parties.permissions import IsOwnerOrReadOnly
+from parties.permissions import ObjectOwnerPermission, UserPermission
 
 class GuestViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (ObjectOwnerPermission, IsAuthenticatedOrReadOnly)
     queryset = Guest.objects.none()
     serializer_class = GuestSerializer
 
@@ -42,7 +42,7 @@ class GuestViewSet(viewsets.ModelViewSet):
 
 
 class PartyViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (ObjectOwnerPermission, IsAuthenticatedOrReadOnly)
     queryset = Party.objects.none()
     serializer_class = PartySerializer
 
@@ -54,6 +54,7 @@ class PartyViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (UserPermission, IsAuthenticatedOrReadOnly,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

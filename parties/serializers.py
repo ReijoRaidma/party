@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from parties.models import Party, Guest
@@ -65,18 +64,9 @@ class UserSerializer(serializers.ModelSerializer):
         view_name='api:user-detail',
     )
 
-
     class Meta:
         model = User
         fields = (
-            'id',
-            'url',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-        )
-        read_only_fields = (
             'id',
             'url',
             'username',
