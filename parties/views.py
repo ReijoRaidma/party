@@ -4,6 +4,7 @@ from django.db import transaction
 from django.forms import inlineformset_factory
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from rest_framework import filters
 
 from rest_framework import generics
 from rest_framework import mixins
@@ -46,6 +47,8 @@ class PartyViewSet(viewsets.ModelViewSet):
     permission_classes = (ObjectOwnerPermission, IsAuthenticatedOrReadOnly)
     queryset = Party.objects.none()
     serializer_class = PartySerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
     def get_queryset(self):
         return Party.objects.readable(user=self.request.user)
