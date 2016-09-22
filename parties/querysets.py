@@ -5,7 +5,10 @@ from django.db.models.query_utils import Q
 class PartyQuerySet(models.QuerySet):
     def readable(self, user):
         if user.is_authenticated:
-            return self.filter(Q(is_public=True) | Q(owner=user))
+            if user.is_superuser:
+                return self
+            else:
+                return self.filter(Q(is_public=True) | Q(owner=user))
         else:
             return self.filter(is_public=True)
 
