@@ -2,19 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.forms import inlineformset_factory
-from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework import filters
 
-from rest_framework import generics
-from rest_framework import mixins
-from rest_framework import status
+from rest_framework import filters
 from rest_framework import viewsets
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from parties.models import Guest, Party
 from parties.forms import PartyForm
@@ -32,15 +24,6 @@ class GuestViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-#
-# class GuestList(generics.ListCreateAPIView):
-#     queryset = Guest.objects.all()
-#     serializer_class = GuestSerializer
-#
-#
-# class GuestDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Guest.objects.all()
-#     serializer_class = GuestSerializer
 
 
 class PartyViewSet(viewsets.ModelViewSet):
@@ -61,54 +44,6 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (UserPermission, IsAuthenticatedOrReadOnly,)
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-
-
-# class ApiPartyList(generics.ListCreateAPIView):
-#     queryset = Party.objects.all()
-#     serializer_class = PartySerializer
-#
-#
-#     def perform_create(self, GuestSerializer):
-#         serializer.save(party=self.request.name)
-#
-#
-# class ApiPartyDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Party.objects.all()
-#     serializer_class = PartySerializer
-
-# @api_view(['GET', 'POST'])
-# def api_party_list(request, format=None):
-#     if request.method == 'GET':
-#         parties = Party.objects.all()
-#         serializer = PartySerializer(parties, many=True)
-#         return Response(serializer.data)
-#
-#     elif request.method == 'POST':
-#         serializer = PartySerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# @api_view(['GET','PUT','DELETE'])
-# def api_party_detail(request, pk, format=None):
-#     party = get_object_or_404(Party, pk=pk)
-#
-#     if request.method == 'GET':
-#         serializer = PartySerializer(party)
-#         return Response(serializer.data)
-#
-#     elif request.method == 'PUT':
-#         serializer = PartySerializer(party, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     elif request.method == 'DELETE':
-#         party.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @transaction.atomic
