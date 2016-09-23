@@ -14,6 +14,8 @@
         <tr>
           <th scope="col" class="text-center">Name</th>
           <th scope="col" class="text-center">Birth Date</th>
+          <th scope="col" class="text-center">Owner</th>
+
         </tr>
       </thead>
       <tbody class="order">
@@ -21,6 +23,8 @@
               <tr class="guest-form {% if guest_form.instance.pk %} item {% else %} new {% endif %}">
                   <td>{{ guest_form.id }}{{guest_form.name}}{{ guest_form.name.errors }}</td>
                   <td>{{ guest_form.birth_date }}{{ guest_form.birth_date.errors }}</td>
+                  <td>{{ guest_form.owner }}{{ guest_form.owner.errors }}</td>
+
               </tr>
           {% endfor %}
       </tbody>

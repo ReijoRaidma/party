@@ -53,7 +53,7 @@ class UserViewSet(viewsets.ModelViewSet):
 @transaction.atomic
 def add_party(request):
     party_form = PartyForm(request.POST or None)
-    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date'), extra=1)
+    GuestFormSet = inlineformset_factory(Party, Guest, fields=('name', 'birth_date', 'owner'), extra=1)
     formset = GuestFormSet(request.POST or None)
 
     if request.method == 'POST':
