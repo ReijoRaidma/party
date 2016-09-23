@@ -69,8 +69,21 @@ class GuestsUserTests(APITestCase):
             password='test4321',
         )
 
+        cls.superuser = User.objects.create_superuser(
+            username='testuser1',
+            email='test@example.com',
+            password='test4321',
+        )
+
     def setUp(self):
         self.client.force_authenticate(self.user)
+
+    def test_user_guest_view(self):
+        party = Party.objects.create(name='Test1', owner=self.superuser, is_public=False)
+        Guest.objects.create(name='name', birth_date="2016-09-15", party=party, owner=self.superuser)
+        response = self.client.get(reverse('api:guest-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
 
     def test_add_guest(self):
         Party.objects.create(name='Test1', owner=self.user)
@@ -115,6 +128,7 @@ class GuestsUserTests(APITestCase):
         response = self.client.delete(guest.get('url'))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+
 class GuestsAnonymousUserTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -128,6 +142,7 @@ class GuestsAnonymousUserTests(APITestCase):
     def setUp(self):
         party = Party.objects.create(name='Test1', owner=self.user, is_public=True)
         Guest.objects.create(name='name', birth_date="2016-09-15", party=party, owner=self.user)
+
     def test_guest_list_view(self):
         url = reverse('api:guest-list')
         response = self.client.get(url)

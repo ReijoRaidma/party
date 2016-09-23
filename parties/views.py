@@ -13,6 +13,8 @@ from parties.forms import PartyForm
 from parties.serializers import PartySerializer, GuestSerializer, UserSerializer
 from parties.permissions import ObjectOwnerPermission, UserPermission
 
+# API Views
+
 
 class GuestViewSet(viewsets.ModelViewSet):
     permission_classes = (ObjectOwnerPermission, IsAuthenticatedOrReadOnly)
@@ -44,6 +46,8 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (UserPermission, IsAuthenticatedOrReadOnly,)
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
+
+# Django views
 
 
 @transaction.atomic

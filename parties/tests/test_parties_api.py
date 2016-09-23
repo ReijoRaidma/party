@@ -93,6 +93,18 @@ class PartiesUserTests(APITestCase):
         for party in response.data:
             self.assertNotEqual(party.get('name'), 'Superuser not public party')
 
+    def test_get_permissions(self):
+        Party.objects.create(name='Superuser public party', owner=self.superuser, is_public=True)
+        url = reverse('api:party-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        party_url = response.data[0].get('url')
+        response_get_party = self.client.get(party_url)
+        self.assertEqual(response_get_party.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response_get_party.data, dict)
+        self.assertEqual(response_get_party.data.get('name'), 'Superuser public party')
+
     def test_create_party(self):
         url = reverse('api:party-list')
         data = {
@@ -184,4 +196,3 @@ class PartiesAnonymousUserTests(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
