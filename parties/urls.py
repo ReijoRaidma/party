@@ -15,12 +15,10 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
-    url(r'^$', views.party_list, name='party_list'),
-    url(r'add_party', views.add_party, name='add_party'),
-    url(r'(?P<pk>[0-9a-z-]+)/edit_party', views.edit_party, name='edit_party'),
-    url(r'(?P<pk>[0-9a-z-]+)/', views.party_detail, name='detail'),
-
-
+    url(r'^parties/$', views.party_list, name='party_list'),
+    url(r'^parties/add/', views.add_party, name='add_party'),
+    url(r'^parties/(?P<pk>[0-9a-z-]+)/edit/', views.edit_party, name='edit_party'),
+    url(r'^parties/(?P<pk>[0-9a-z-]+)/', views.party_detail, name='detail'),
 ]
 
 
