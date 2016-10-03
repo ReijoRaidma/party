@@ -16,6 +16,9 @@ class PartyQuerySet(models.QuerySet):
 class GuestQuerySet(models.QuerySet):
     def readable(self, user):
         if user.is_authenticated:
-            return self.filter(Q(owner=user) | Q(party__is_public=True))
+            if user.is_superuser:
+                return self
+            else:
+                return self.filter(Q(owner=user) | Q(party__is_public=True))
         else:
             return self.filter(party__is_public=True)
