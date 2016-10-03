@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ReijoRaidma/party.svg?branch=master)](https://travis-ci.org/ReijoRaidma/party)
+[![Build Status](https://travis-ci.org/reijoraidma/party.svg?branch=master)](https://travis-ci.org/reijoraidma/party)
 
 # party
 Django REST Framework Testing Project
