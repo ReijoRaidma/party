@@ -1,6 +1,8 @@
 from django.core.urlresolvers import reverse
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from parties.models import User
 
 
@@ -16,15 +18,21 @@ class UsersSuperuserTests(APITestCase):
     def setUp(self):
         self.client.force_authenticate(self.user)
 
-    def test_users_view(self):
+    def test_get_user_list(self):
         url = reverse('api:user-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        for user in response.data:
-            user_url = user.get('url')
-            response_user_get = self.client.get(user_url)
-            self.assertEqual(response_user_get.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(self.user.username, response.data[0].get('username'))
+
+    def test_get_user_detail(self):
+        url = reverse('api:user-detail', kwargs={'pk': self.user.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data.get('username'), self.user.username)
+
 
 class UsersUserTests(APITestCase):
     @classmethod
@@ -38,27 +46,33 @@ class UsersUserTests(APITestCase):
     def setUp(self):
         self.client.force_authenticate(self.user)
 
-    def test_users_view_permissions(self):
+    def test_get_user_list(self):
         url = reverse('api:user-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        for user in response.data:
-            user_url = user.get('url')
-            response_user_get = self.client.get(user_url)
-            self.assertEqual(response_user_get.status_code, status.HTTP_200_OK)
-            data = {'username': 'testuser2'}
-            response_user_put = self.client.put(user_url, data=data)
-            self.assertEqual(response_user_put.status_code, status.HTTP_200_OK)
-            self.assertIsInstance(response_user_put.data, dict)
-            self.assertEqual(response_user_put.data.get('username'), data.get('username'))
+        self.assertEqual(len(response.data), 1)
 
-    def test_users_options(self):
+    def test_get_user_detail(self):
+        user_url = reverse('api:user-detail', kwargs={'pk': self.user.id})
+        response = self.client.get(user_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data.get('username'), self.user.username)
+
+    def test_user_detail_put(self):
+        user_url = reverse('api:user-detail', kwargs={'pk': self.user.id})
+        data = {'username': 'testuser2'}
+        response = self.client.put(user_url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data.get('username'), data.get('username'))
+
+    def test_users_list_options(self):
         url = reverse('api:user-list')
         response = self.client.options(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, dict)
-
 
 
 class UsersAnonymousTests(APITestCase):
@@ -70,15 +84,18 @@ class UsersAnonymousTests(APITestCase):
             password='test4321',
         )
 
-    def test_users_view(self):
+    def test_get_users_view(self):
         url = reverse('api:user-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        for user in response.data:
-            user_url = user.get('url')
-            response_user_get = self.client.get(user_url)
-            self.assertEqual(response_user_get.status_code, status.HTTP_200_OK)
+
+    def test_get_user_detail(self):
+        url = reverse('api:user-detail', kwargs={'pk': self.user.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data.get('username'), self.user.username)
 
     def test_users_options(self):
         url = reverse('api:user-list')

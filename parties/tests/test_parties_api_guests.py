@@ -1,6 +1,8 @@
 from django.core.urlresolvers import reverse
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from parties.models import User, Party, Guest
 
 
@@ -17,10 +19,9 @@ class GuestsSuperuserTests(APITestCase):
         self.client.force_authenticate(self.user)
 
     def test_add_guest(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        Party.objects.create(name='Test2', owner=self.user)
+        party = Party.objects.create(name='Test1', owner=self.user)
         url = reverse('api:guest-list')
-        party = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = reverse('api:party-detail', kwargs={'pk': party.id})
         data = ({
             'name': 'testname',
             "birth_date": "2016-09-15",
@@ -31,32 +32,30 @@ class GuestsSuperuserTests(APITestCase):
         self.assertIsInstance(response.data, dict)
         self.assertIn('url', response.data)
         self.assertEqual(data.get('name'), response.data.get('name'))
-        self.assertEqual(data.get('party'), response.data.get('party'))
+        self.assertIn(party, response.data.get('party'))
 
     def test_edit_guest(self):
         party1 = Party.objects.create(name='Test1', owner=self.user)
-        Party.objects.create(name='Test2', owner=self.user)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
-        guest = self.client.get(reverse('api:guest-list')).data[0]
-        party2_url = self.client.get(reverse('api:party-list')).data[1].get('url')
+        party2 = Party.objects.create(name='Test2', owner=self.user)
+        guest = Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
+        party2_url = reverse('api:party-detail', kwargs={'pk': party2.id})
+        guest_url = reverse('api:guest-detail', kwargs={'pk': guest.id})
         data = ({
             'name': 'changed name',
             "birth_date": "2000-09-15",
-            "party": party2_url
+            "party": party2_url,
         })
-        response = self.client.put(guest.get('url'), data)
+        response = self.client.put(guest_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, dict)
-        self.assertNotEqual(guest.get('name'), response.data.get('name'))
-        self.assertEqual(response.data.get('name'), 'changed name')
-        self.assertNotEqual(response.data.get('party'), guest.get('party'))
-        self.assertEqual(response.data.get('party'), party2_url)
+        self.assertEqual(response.data.get('name'), data.get('name'))
+        self.assertIn(party2_url, response.data.get('party'))
 
     def test_delete_guest(self):
         party1 = Party.objects.create(name='Test1', owner=self.user)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
-        guest = self.client.get(reverse('api:guest-list')).data[0]
-        response = self.client.delete(guest.get('url'))
+        guest = Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
+        guest_url = reverse('api:guest-detail', kwargs={'pk': guest.id})
+        response = self.client.delete(guest_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -69,7 +68,7 @@ class GuestsUserTests(APITestCase):
             password='test4321',
         )
 
-        cls.superuser = User.objects.create_superuser(
+        cls.anotheruser = User.objects.create_user(
             username='testuser1',
             email='test@example.com',
             password='test4321',
@@ -78,18 +77,21 @@ class GuestsUserTests(APITestCase):
     def setUp(self):
         self.client.force_authenticate(self.user)
 
-    def test_user_guest_view(self):
-        party = Party.objects.create(name='Test1', owner=self.superuser, is_public=False)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party, owner=self.superuser)
-        response = self.client.get(reverse('api:guest-list'))
+    def test_user_get_guest_list(self):
+        private_party = Party.objects.create(name='Test1', owner=self.anotheruser, is_public=False)
+        Guest.objects.create(name='name', birth_date="2016-09-15", party=private_party, owner=self.anotheruser)
+        public_party = Party.objects.create(name='Test1', owner=self.anotheruser, is_public=True)
+        Guest.objects.create(name='name', birth_date="2016-09-15", party=public_party, owner=self.anotheruser)
+        url = reverse('api:guest-list')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual(len(response.data), 1)
+        self.assertIsInstance(response.data, list)
 
     def test_add_guest(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        Party.objects.create(name='Test2', owner=self.user)
+        party = Party.objects.create(name='Test1', owner=self.user)
         url = reverse('api:guest-list')
-        party = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = reverse('api:party-detail', kwargs={'pk': party.id})
         data = ({
             'name': 'testname',
             "birth_date": "2016-09-15",
@@ -100,64 +102,57 @@ class GuestsUserTests(APITestCase):
         self.assertIsInstance(response.data, dict)
         self.assertIn('url', response.data)
         self.assertEqual(data.get('name'), response.data.get('name'))
-        self.assertEqual(data.get('party'), response.data.get('party'))
+        self.assertIn(party, response.data.get('party'))
 
     def test_edit_guest(self):
         party1 = Party.objects.create(name='Test1', owner=self.user)
-        Party.objects.create(name='Test2', owner=self.user)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
-        guest = self.client.get(reverse('api:guest-list')).data[0]
-        party2_url = self.client.get(reverse('api:party-list')).data[1].get('url')
+        party2 = Party.objects.create(name='Test2', owner=self.user)
+        guest = Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
+        party2_url = reverse('api:party-detail', kwargs={'pk': party2.id})
+        guest_url = reverse('api:guest-detail', kwargs={'pk': guest.id})
         data = ({
             'name': 'changed name',
             "birth_date": "2000-09-15",
-            "party": party2_url
+            "party": party2_url,
         })
-        response = self.client.put(guest.get('url'), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.put(guest_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertIsInstance(response.data, dict)
-        self.assertNotEqual(guest.get('name'), response.data.get('name'))
-        self.assertEqual(response.data.get('name'), 'changed name')
-        self.assertNotEqual(response.data.get('party'), guest.get('party'))
-        self.assertEqual(response.data.get('party'), party2_url)
+        self.assertEqual(response.data.get('name'), data.get('name'))
+        self.assertIn(party2_url, response.data.get('party'))
 
     def test_delete_guest(self):
         party1 = Party.objects.create(name='Test1', owner=self.user)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
-        guest = self.client.get(reverse('api:guest-list')).data[0]
-        response = self.client.delete(guest.get('url'))
+        guest = Guest.objects.create(name='name', birth_date="2016-09-15", party=party1, owner=self.user)
+        guest_url = reverse('api:guest-detail', kwargs={'pk': guest.id})
+        response = self.client.delete(guest_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 class GuestsAnonymousUserTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-
         cls.user = User.objects.create_superuser(
             username='superuser',
             email='test@example.com',
             password='superpassword',
         )
+        party = Party.objects.create(name='Test1', owner=cls.user, is_public=True)
+        Guest.objects.create(name='name', birth_date="2016-09-15", party=party, owner=cls.user)
 
-    def setUp(self):
-        party = Party.objects.create(name='Test1', owner=self.user, is_public=True)
-        Guest.objects.create(name='name', birth_date="2016-09-15", party=party, owner=self.user)
-
-    def test_guest_list_view(self):
+    def test_get_guest_list(self):
         url = reverse('api:guest-list')
         response = self.client.get(url)
         self.assertEqual(len(response.data), 1)
-        self.assertNotEqual(response.data[0].get('is_public'), False)
-        self.assertEqual(response.data[0].get('name'), 'name')
 
     def test_anonymous_guest_create(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        party = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = Party.objects.create(name='Test2', owner=self.user)
+        party_url = reverse('api:party-detail', kwargs={'pk': party.id})
         url = reverse('api:guest-list')
         data = ({
             'name': 'testname',
             "birth_date": "2016-09-15",
-            "party": party
+            "party": party_url
         })
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

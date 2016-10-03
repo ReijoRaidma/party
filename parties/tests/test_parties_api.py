@@ -1,6 +1,8 @@
 from django.core.urlresolvers import reverse
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from parties.models import User, Party
 
 
@@ -44,8 +46,8 @@ class PartiesSuperuserTests(APITestCase):
         self.assertIn('url', response.data[0])
 
     def test_edit_party(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        url = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = Party.objects.create(name='Test1', owner=self.user)
+        url = reverse('api:party-detail', kwargs={'pk': party.id})
         data = {
             'name': 'Test1 after edit',
             'is_public': False
@@ -57,8 +59,8 @@ class PartiesSuperuserTests(APITestCase):
         self.assertEqual(response.data.get('is_public'), data.get('is_public'))
 
     def test_delete_party(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        url = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = Party.objects.create(name='Test1', owner=self.user)
+        url = reverse('api:party-detail', kwargs={'pk': party.id})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -71,7 +73,7 @@ class PartiesUserTests(APITestCase):
             email='test@example.com',
             password='test4321',
         )
-        cls.superuser = User.objects.create_superuser(
+        cls.anotheruser = User.objects.create_user(
             username='superuser',
             email='test@example.com',
             password='superpassword',
@@ -81,7 +83,7 @@ class PartiesUserTests(APITestCase):
         self.client.force_authenticate(self.user)
 
     def test_view_party(self):
-        Party.objects.create(name='Superuser not public party', owner=self.superuser, is_public=False)
+        Party.objects.create(name='Superuser not public party', owner=self.anotheruser, is_public=False)
         Party.objects.create(name='Testuser public party', owner=self.user, is_public=True)
         Party.objects.create(name='Testuser not public party', owner=self.user, is_public=False)
         url = reverse('api:party-list')
@@ -93,17 +95,21 @@ class PartiesUserTests(APITestCase):
         for party in response.data:
             self.assertNotEqual(party.get('name'), 'Superuser not public party')
 
-    def test_get_permissions(self):
-        Party.objects.create(name='Superuser public party', owner=self.superuser, is_public=True)
+    def test_get_party_list(self):
+        Party.objects.create(name='Anotheruser public party', owner=self.anotheruser, is_public=True)
         url = reverse('api:party-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
         self.assertIsInstance(response.data, list)
-        party_url = response.data[0].get('url')
-        response_get_party = self.client.get(party_url)
-        self.assertEqual(response_get_party.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response_get_party.data, dict)
-        self.assertEqual(response_get_party.data.get('name'), 'Superuser public party')
+
+    def test_get_party_detail(self):
+        party = Party.objects.create(name='Anotheruser public party', owner=self.anotheruser, is_public=True)
+        url = reverse('api:party-detail', kwargs={'pk': party.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data.get('name'), 'Anotheruser public party')
 
     def test_create_party(self):
         url = reverse('api:party-list')
@@ -122,7 +128,7 @@ class PartiesUserTests(APITestCase):
         url = reverse('api:party-list')
         Party.objects.create(name='Test1', owner=self.user)
         Party.objects.create(name='Test2', owner=self.user)
-        Party.objects.create(name='Test3', owner=self.superuser, is_public=False)
+        Party.objects.create(name='Test1', owner=self.anotheruser, is_public=False)
 
         params = {
             'search': 'Test1'
@@ -136,8 +142,8 @@ class PartiesUserTests(APITestCase):
 
     def test_search_public_party(self):
         url = reverse('api:party-list')
-        Party.objects.create(name='Test1', owner=self.superuser, is_public=False)
-        Party.objects.create(name='Test2', owner=self.superuser, is_public=True)
+        Party.objects.create(name='Test1', owner=self.anotheruser, is_public=False)
+        Party.objects.create(name='Test2', owner=self.anotheruser, is_public=True)
         params = {
             'search': 'Test'
         }
@@ -148,8 +154,8 @@ class PartiesUserTests(APITestCase):
         self.assertEqual(response.data[0].get('name'), 'Test2')
 
     def test_edit_party(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        url = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = Party.objects.create(name='Test1', owner=self.user)
+        url = reverse('api:party-detail', kwargs={'pk': party.id})
         data = {
             'name': 'Test1 after edit',
             'is_public': False
@@ -161,8 +167,8 @@ class PartiesUserTests(APITestCase):
         self.assertEqual(response.data.get('is_public'), data.get('is_public'))
 
     def test_delete_party(self):
-        Party.objects.create(name='Test1', owner=self.user)
-        url = self.client.get(reverse('api:party-list')).data[0].get('url')
+        party = Party.objects.create(name='Test1', owner=self.user)
+        url = reverse('api:party-detail', kwargs={'pk': party.id})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -176,10 +182,8 @@ class PartiesAnonymousUserTests(APITestCase):
             email='test@example.com',
             password='superpassword',
         )
-
-    def setUp(self):
-        Party.objects.create(name='Test1', owner=self.user, is_public=True)
-        Party.objects.create(name='Test1', owner=self.user, is_public=False)
+        Party.objects.create(name='Test1', owner=cls.user, is_public=True)
+        Party.objects.create(name='Test1', owner=cls.user, is_public=False)
 
     def test_party_list_view(self):
         url = reverse('api:party-list')
